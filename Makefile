@@ -10,13 +10,23 @@
 #                                                                              #
 # **************************************************************************** #
 
-export CC = cc
+CC = gcc
+PWD = $(shell pwd)
+FRAMEWORKSDIR=$(PWD)/frameworks
 
-export CFLAGS = -Wall -Wextra -Werror
+INC=-I includes -I $(FRAMEWORKSDIR) -I libft
+
+CFLAGS=-Wall -Wextra -Werror $(INC)
 
 NAME = wolf3d
 
-SRC = ./main.c ./ft_utils.c ./ft_init.c ./ft_key.c ./ft_mouse.c ./ft_move.c\
+SRCDIR=srcs
+
+INCLUDESDIR = includes
+
+INCLUDES_NOPREFIX = main.h
+
+SRC_NOPREFIX = ./main.c ./ft_utils.c ./ft_init.c ./ft_key.c ./ft_mouse.c ./ft_move.c\
 	  ./ft_render.c ./ft_render_sprites.c ./ft_pick.c ./ft_interact.c\
 	  ./ft_weapons.c ./ft_process_weapon.c ./ft_process_enemy.c\
 	  ./ft_apply_filter.c ./ft_stack.c ./ft_door.c ./ft_init_enemy.c\
@@ -43,35 +53,32 @@ SRC = ./main.c ./ft_utils.c ./ft_init.c ./ft_key.c ./ft_mouse.c ./ft_move.c\
 	  ./ft_process_sergent_3.c ./ft_create_projectiles.c ./ft_key_menu_4.c\
 	  ./ft_process_map.c
 
+SRC = $(addprefix $(SRCDIR)/,$(SRC_NOPREFIX))
+INCLUDES = $(addprefix $(INCLUDESDIR)/,$(INCLUDES_NOPREFIX))
+
 OBJ = $(SRC:.c=.o)
 
 LIBFT_DIR = libft
 
-SDL2 = ./frameworks/SDL2.framework/Versions/A/SDL2
-
-SDL2_image = ./frameworks/SDL2_image.framework/Versions/A/SDL2_image
-
-SDL2_mixer = ./frameworks/SDL2_mixer.framework/Versions/A/SDL2_mixer
+SDL2_FRAMEWORKS = -framework SDL2\
+				  -framework SDL2_image\
+				  -framework SDL2_mixer
 
 red=`tput setaf 1`
 green=`tput setaf 2`
 reset=`tput sgr0`
 
-all: $(NAME)
+LFLAGS = -L $(LIBFT_DIR) -lft $(CFLAGS) -Wl,-rpath $(FRAMEWORKSDIR)
+
+all: $(NAME) -j8
 
 $(NAME): $(OBJ)
 	@$(MAKE) -C $(LIBFT_DIR)
-	@$(CC) -o $@ $^ -F ./frameworks -framework SDL2\
-		-framework SDL2_image -framework SDL2_mixer -L $(LIBFT_DIR) -lft
+	@$(CC) -o $@ $^ -F $(FRAMEWORKSDIR) $(SDL2_FRAMEWORKS) $(LFLAGS) $(CFLAGS) 
 	@echo "$(green)Compilation finished: $(NAME)$(reset)"
-	@install_name_tool -change @rpath/SDL2.framework/Versions/A/SDL2 $(SDL2) $(NAME)
-	@install_name_tool -change @rpath/SDL2_image.framework/Versions/A/SDL2_image $(SDL2_image) $(NAME)
-	@install_name_tool -change @rpath/SDL2_mixer.framework/Versions/A/SDL2_mixer $(SDL2_mixer) $(NAME)
 
-%.o: %.c ./main.h
-	@$(CC) -o $@ -c $< $(CFLAGS) -F ./frameworks
-
-.PHONY: clean fclean
+%.o: %.c $(INCLUDES)
+	$(CC) -o $@ -c $< -F $(FRAMEWORKSDIR) $(CFLAGS) 
 
 clean:
 	@$(MAKE) $@ -C $(LIBFT_DIR)
@@ -84,3 +91,5 @@ fclean: clean
 	@echo "$(green)Executable file deleted: $(NAME)$(reset)"
 
 re: fclean all
+
+.PHONY: clean fclean re
