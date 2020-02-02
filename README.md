@@ -1,9 +1,11 @@
 # wolf3d
 wolfenstein 3D clone
 
-![oops something went wrong, try to check on https://raw.githubusercontent.com/ldedier/wolf3d/master/pics/wolf3d.gif](https://raw.githubusercontent.com/ldedier/fdf/master/pics/wolf3d.gif)
+![oops something went wrong, try to check on https://raw.githubusercontent.com/ldedier/wolf3d/master/pics/wolf3d.gif](https://raw.githubusercontent.com/ldedier/wolf3d/master/pics/wolf3d.gif)
 
 This project was about rendering a labyrinth with walls, and we decided to push it further
+
+## Features
 
 * menu
 * pause
